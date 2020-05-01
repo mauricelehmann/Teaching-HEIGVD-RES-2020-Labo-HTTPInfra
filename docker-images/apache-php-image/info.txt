@@ -1,0 +1,29 @@
+//Pour ce connecter au docker 192.168.99.100
+
+//Avec powershell : 
+docker exect -it <nom du container> /bin/bash
+
+//Dossier de config Apache
+cd /etc/apache2/sites-available/...
+
+
+//Changé dans Dockerfile le fait de copier les fichier locaux dans le repertoire apache sur la VM
+
+COPY content/ /var/www/html/
+
+
+//Rebuild le nouveau build (dans le bon dossier ou ya le Dockerfile)
+
+docker build -t res/apache-php .
+
+
+//Tué le container qui tournais 
+docker kill <container>
+
+//Run le container
+
+docker run -p 9090:80 res/apache-php
+
+//Normalement si on va sur 192.168.99.100:9090 on arrive sur index.html qui a le contenu de ce qu'on a copié 
+
+
