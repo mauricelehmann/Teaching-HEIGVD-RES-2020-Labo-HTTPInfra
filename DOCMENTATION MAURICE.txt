@@ -1,7 +1,7 @@
 //Pour ce connecter au docker 192.168.99.100
 
 //Avec powershell ou cmder:
-docker exect -it -i <nom du container> /bin/bash
+docker exec -it -i <nom du container> /bin/bash
 
 //Dossier de config Apache
 cd /etc/apache2/sites-available/...
@@ -27,7 +27,11 @@ docker run -p 9090:80 res/apache-php
 //Normalement si on va sur 192.168.99.100:9090 on arrive sur index.html qui a le contenu de ce qu'on a copié
 
 
-//Partie 2 
+//Rajouter dans le dockerfile la commande
+apt-get update
+apt-get vim
+
+//Partie 2
 
 //Lancé une commande au démmarage de docker
 CMD ["node", "/opt/app/index.js"]
@@ -36,6 +40,29 @@ CMD ["node", "/opt/app/index.js"]
 // dans le fichier Dockerfile
 //( SyntaxError: Block-scoped declarations (let, const, function, class) not yet supported outside strict mode)
 
-
 //Pour aller dans la "boite" Docker et acceder à la vm docker
 docker-machine ssh
+
+
+//Modifié le fichier de conf sur la vm apache2 reverse-proxy
+/etc/apache2/sites-available/001-reverse-proxy.conf
+//Ecrit avec nano
+<VirtualHost *:80>
+        ServerName demo.res.ch
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+        ProxyPass "/api/students/" "http://172.17.0.3:3333/"
+        ProxyPassReverse "/api/students/" "http://172.17.0.3:3333/"
+
+        ProxyPass "/" "http://172.17.0.2:80/"
+        ProxyPassReverse "/" "http://172.17.0.2:80/"
+</VirtualHost>
+
+
+//Enabled mod : proxy , proxy_http
+
+/etc/apache2/> a2enmod proxy
+/etc/apache2/> a2enmod proxy_http
+/etc/apache2/> service apache2 reload
