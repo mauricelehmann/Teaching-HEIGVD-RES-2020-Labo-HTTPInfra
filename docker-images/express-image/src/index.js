@@ -4,7 +4,7 @@ var express = require('express');
 var app = express();
 
 //Avec GET / HTTP/1.0
-app.get('/', function(req, res){
+app.get('/api/students', function(req, res){
 	res.send(chance.name());
 });
 
