@@ -1,3 +1,33 @@
+
+Config :
+ - express-image : http://172.17.0.3:3333/
+ 		- /api/students : nom aléatoire
+
+ - static-image : http://172.17.0.2:80/
+	  - / : contenu static bootstrap
+
+
+
+
+BUILD  : dans le dossier avec la Dockerfile (le res/apache-php = nom qu'on veut donner)
+   docker build -t res/apache-php .
+
+RUN
+	docker run -d --name apache_static res/apache-php
+   docker run -d -p 8080:80 --name apache_rp res/apache-rp
+   docker run -d --name apache_dynamic res/express-students
+
+
+KILL (exited) depuis bash : 
+   docker rm -v $(docker ps -a -q -f status=exited)
+
+
+INSPECT 
+   docker inspect apache_dynamic | grep -i "ipad"
+
+
+
+
 //Pour ce connecter au docker 192.168.99.100
 
 //Avec powershell ou cmder:
@@ -22,14 +52,14 @@ docker kill <container>
 
 //Run le container
 
-docker run -p 9090:80 res/apache-php
+docker run -p 8080:80 res/apache-php
 
 //Normalement si on va sur 192.168.99.100:9090 on arrive sur index.html qui a le contenu de ce qu'on a copié
 
 
 //Rajouter dans le dockerfile la commande
 apt-get update
-apt-get vim
+apt-get nano
 
 //Partie 2
 
@@ -66,3 +96,13 @@ docker-machine ssh
 /etc/apache2/> a2enmod proxy
 /etc/apache2/> a2enmod proxy_http
 /etc/apache2/> service apache2 reload
+
+
+//Pour "automatiser ça" :
+cf le dockerfile de reverse-proxy et le dossier conf/
+
+// -----------------  Partie 3 -------------------------
+
+//Pour changer le DNS local :
+ - modifier c:\windows\system32\drivers\etc\hosts en mode admin
+  -> 192.168.99.100 demo.res.ch
