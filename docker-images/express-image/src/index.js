@@ -4,12 +4,8 @@ var express = require('express');
 var app = express();
 
 
-app.get('/', function(req, res) {
-	res.send("no path here , just / ");
-});
-
 //Avec GET / HTTP/1.0
-app.get('/api/students', function(req, res){
+app.get('/api/students/', function(req, res){
 	var students = [];
 	for (var i = 0; i < 10; i++) {
 		var gender = chance.gender();
@@ -23,7 +19,7 @@ app.get('/api/students', function(req, res){
 			}),
 			lastName : chance.last(),
 			birthday: chance.birthday({
-				year: birthday;
+				year: birthday
 			})
 		});
 	}
