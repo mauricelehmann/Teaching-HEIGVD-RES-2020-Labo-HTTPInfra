@@ -13,25 +13,46 @@ BUILD  : dans le dossier avec la Dockerfile (le res/apache-php = nom qu'on veut 
    docker build -t res/apache-php .
 
 RUN
-	docker run -d --name apache_static res/apache-php
+   docker run -d --name apache_static res/apache-php
    docker run -d -p 8080:80 --name apache_rp res/apache-rp
    docker run -d --name apache_dynamic res/express-students
 
+   //Avec les variables système
+   //Avant il faut check avec docker inspect les adresses de express et static
+   docker run -e STATIC_APP=172.17.0.2:80 -e DYNAMIC_APP=17.17.0.3:3333 res/apache-rp
 
-KILL (exited) depuis bash : 
+RUN interactif :
+
+docker run -it <nom de l'image> /bin/bash
+
+
+KILL (exited) depuis bash :
    docker rm -v $(docker ps -a -q -f status=exited)
 
 
-INSPECT 
+INSPECT
    docker inspect apache_dynamic | grep -i "ipad"
 
 
+EXEC
 
+   docker exec -it -i <nom du container> /bin/bash
+
+DOCKER-MACHINE
+
+   docker-machine ssh
+
+
+
+
+API
+Pour une raison obscure...
+http://demo.res.ch:8080/api/students/api/students
+pour avoir la bonne route sur le index.js api ....
 
 //Pour ce connecter au docker 192.168.99.100
 
 //Avec powershell ou cmder:
-docker exec -it -i <nom du container> /bin/bash
 
 //Dossier de config Apache
 cd /etc/apache2/sites-available/...
@@ -47,12 +68,6 @@ COPY content/ /var/www/html/
 docker build -t res/apache-php .
 
 
-//Tué le container qui tournais
-docker kill <container>
-
-//Run le container
-
-docker run -p 8080:80 res/apache-php
 
 //Normalement si on va sur 192.168.99.100:9090 on arrive sur index.html qui a le contenu de ce qu'on a copié
 
@@ -70,8 +85,7 @@ CMD ["node", "/opt/app/index.js"]
 // dans le fichier Dockerfile
 //( SyntaxError: Block-scoped declarations (let, const, function, class) not yet supported outside strict mode)
 
-//Pour aller dans la "boite" Docker et acceder à la vm docker
-docker-machine ssh
+
 
 
 //Modifié le fichier de conf sur la vm apache2 reverse-proxy
@@ -106,3 +120,11 @@ cf le dockerfile de reverse-proxy et le dossier conf/
 //Pour changer le DNS local :
  - modifier c:\windows\system32\drivers\etc\hosts en mode admin
   -> 192.168.99.100 demo.res.ch
+
+
+
+
+//Dynamic config
+1. changé la dockerfile du apache-rp en rajoutant
+   COPY apache2-foreground /usr/local/bin/
+   Le fichier apache2-foreground vient du git (https://github.com/docker-library/php/blob/master/apache2-foreground)
