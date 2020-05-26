@@ -8,7 +8,7 @@ L'objectif de ce labo était de mettre en place **trois** serveurs, dockérisé,
 * Le deuxième serveur : ***apache-dynamic***, fait tourner un serveur **Node.js**, et fournis une API qui permet de générer des noms, prénom, date de naissances. via une librairie Javascript, **Express**.
 * Le troisième serveur : ***reverse-proxy*** , s'occupe de rediriger les requêtes HTTP entrantes sur les bons serveurs.
 
-<img src="images_documentation/vm_diagram.png" alt="drawing" width="520"/>
+<img src="images_documentation/vm_diagram2.png" alt="drawing" width="520"/>
 
 
 ## apache-static
@@ -37,6 +37,8 @@ La configuration apache se trouve dans **/etc/apache2/sites-available/** :
 	CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
 ```
+
+
 
 
 ## Step 2: Dynamic HTTP server with express.js
