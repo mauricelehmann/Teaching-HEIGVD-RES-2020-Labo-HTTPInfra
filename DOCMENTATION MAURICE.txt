@@ -8,7 +8,6 @@ Config :
 
 
 
-
 BUILD  : dans le dossier avec la Dockerfile (le res/apache-php = nom qu'on veut donner)
    docker build -t res/apache-php .
 
@@ -120,7 +119,6 @@ cf le dockerfile de reverse-proxy et le dossier conf/
 //Pour changer le DNS local :
  - modifier c:\windows\system32\drivers\etc\hosts en mode admin
   -> 192.168.99.100 demo.res.ch
-
 
 
 
