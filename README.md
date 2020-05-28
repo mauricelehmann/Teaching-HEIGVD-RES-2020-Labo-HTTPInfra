@@ -91,6 +91,7 @@ COPY src /opt/app
 CMD ["node", "/opt/app/index.js"]
 
 ```
+On copie donc le contenu de notre application node.js dans /opt/app et lançons le serveur Node au démarrage du Docker.
 
 N.B : la version 6.0 de Node est nécessaire pour utiliser **Express.js**. Sans quoi on se retrouve avec l'erreur suivante : 
 ```( SyntaxError: Block-scoped declarations (let, const, function, class) not yet supported outside strict mode)```
@@ -136,12 +137,71 @@ app.listen(3333, function(){
 ```
 
 
+## reverse-proxy
 
+A ce stade, nous avons donc images Docker lancées. **apache-static** qui s'occupe de renvoyer du contenu HTML (Bootstrapé) statique et **apache-dynamic** qui fournit une API que **apache-static** appelle via son script javascript students.js.
 
+Le container **reverse-proxy** s'occupera lui de rediriger selon le port, les requêtes entrantes :
+ - 8080 -> 3333 : sur **apache-dynamic**
+ - 8080 -> 80   : sur **apache-static**
 
-## Step 3: Reverse proxy with apache (static configuration)
+Pour cela, nous devrons mapper les bonnes adresse IPs des deux autre containers, et cela de manière dynamique.
 
+A la place de "hardcoder" les adresses IP des deux autres serveurs, nous allons générer dynamiquement le fichier de .conf du serveur.
 
-## Step 4: AJAX requests with JQuery
+Ainsi, lors du lancement du container (docker run), nous spécifierons les adresses IPs, à l'aide de la commande "-e".
+Nous récupérons ensuite ses variables d'envrionnement dans le fichier (config-template.php)[/docker-images/apache-reverse-proxy/templates/config-template.php]
 
-## Step 5: Dynamic reverse proxy configuration
+```php
+<?php
+	$ip_static_app = getenv('STATIC_APP');
+	$ip_dynamic_app = getenv('DYNAMIC_APP');
+?>
+<VirtualHost *:80>
+	ServerName demo.res.ch
+
+	ProxyPass '/api/students/' 'http://<?php print "$ip_dynamic_app"?>/'
+	ProxyPassReverse '/api/students/' 'http://<?php print "$ip_dynamic_app"?>/'
+
+	ProxyPass '/' 'http://<?php print "$ip_static_app"?>/'
+	ProxyPassReverse '/' 'http://<?php print "$ip_static_app"?>/'
+
+</VirtualHost>
+```
+
+Lors du lancement du container de **reverse-proxy**, nous devons nous assurer que le fichier 001-reverse-proxy.conf sois générer dynamiquement, par php.
+
+Pour se faire, nous utiliserons le fichier [apache2-foreground](/docker-images/apache-reverse-proxy/apache2-foreground), récupéré du répertoire git de Apache2.
+
+Plus précisément, nous rajoutons les lignes suivantes :
+```
+# Add setup for RES lab
+echo "Setup for the RES lab"
+echo "Static app url : $STATIC_APP"
+echo "Dynamic app url : $DYNAMIC_APP"
+php /var/apache2/templates/config-template.php > /etc/apache2/sites-available/001-reverse-proxy.conf
+```
+Pour que **reverse-proxy** fonctionne correctement, il faut aussi activer deux modules Apache2 : **proxy** et **proxy_http**.
+Puis également activer les fichiers de .conf.
+Nous utilisons pour ce faire nous utilisons les commandes suivantes (dans le Dockerfile) :
+```Dockerfile
+RUN a2enmod proxy proxy_http
+RUN a2ensite 000-* 001-*
+```
+
+On a donc finalement, le Dockerfile de **reverse-proxy** ressemblant à ça :
+```Dockerfile
+FROM php:5.6-apache
+
+RUN apt-get update && \
+	apt-get install -y nano
+
+COPY apache2-foreground /usr/local/bin/
+COPY templates /var/apache2/templates
+
+COPY conf/ /etc/apache2
+
+RUN a2enmod proxy proxy_http
+RUN a2ensite 000-* 001-*
+
+```
