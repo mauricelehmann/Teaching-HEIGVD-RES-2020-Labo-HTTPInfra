@@ -236,7 +236,7 @@ Dans cette dernière commande, on fait plusieurs choses :
  
 A partir de là, l'application est accessible à l'adresse : **192.168.99.100:8080** (si vous êtes sur Docker-machine).
 
-###Modification du DNS
+### Modification du DNS
 Il est aussi possible de modifier les redirections DNS de la machine client pour pouvoir accéder à notre application web sur l'adresse : **demo.res.ch**.
 
 Pour ce faire, sur Windows, il faut modifier le fichier suivant : c:\windows\system32\drivers\etc\hosts (en mode admin)
