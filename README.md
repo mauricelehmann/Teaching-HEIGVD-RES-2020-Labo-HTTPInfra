@@ -171,7 +171,7 @@ Nous récupérons ensuite ses variables d'envrionnement dans le fichier (config-
 
 Lors du lancement du container de **reverse-proxy**, nous devons nous assurer que le fichier 001-reverse-proxy.conf sois générer dynamiquement, par php.
 
-Pour se faire, nous utiliserons le fichier [apache2-foreground](/docker-images/apache-reverse-proxy/apache2-foreground), récupéré du répertoire git de Apache2.
+Pour se faire, nous utiliserons le fichier [apache2-foreground](/docker-images/apache-reverse-proxy/apache2-foreground), récupéré du [répertoire Git officiel](https://github.com/docker-library/php/blob/master/apache2-foreground).
 
 Plus précisément, nous rajoutons les lignes suivantes :
 ```
@@ -205,3 +205,45 @@ RUN a2enmod proxy proxy_http
 RUN a2ensite 000-* 001-*
 
 ```
+
+## Build & Lancement des Docker Containers
+### Builds
+Pour le build des trois images, il faut se mettre dans le dossier ou se trouve le fichier Dockerfile correspondant.
+Puis lancer la commandes suivantes :
+```sh
+docker build -t <nom de l'image qu'on veut donner> .
+```
+
+### Run
+Les deux premiers container à lancer sont **apache-static** et **apache-dynamic** :
+```sh
+ docker run -d --name apache_static <nom de l'image apache-static>
+ docker run -d --name apache_dynamic <nom de l'image apache-dynamic>
+```
+Puis il faut récupérer leur deux adresses IPs :
+```sh
+docker inspect apache_static | grep -i ipad
+docker inspect apache_dynamic | grep -i ipad
+```
+On peut finalement lancer le **reverse-proxy**
+```sh
+docker run -e STATIC_APP=<adresse IP de apache_static>:80 -e DYNAMIC_APP=<adresse IP de apache_dynamic>:3333 -p 8080:80 --name reverse-proxy res/apache-rp
+```
+Dans cette dernière commande, on fait plusieurs choses :
+ - "-e" : Set les variables d'environnement de la VM
+ - "-p" : Mapping du port 8080 sur le 80.
+ - "--name" : spécifie le nom du container
+ 
+A partir de là, l'application est accessible à l'adresse : **192.168.99.100:8080** (si vous êtes sur Docker-machine).
+
+###Modification du DNS
+Il est aussi possible de modifier les redirections DNS de la machine client pour pouvoir accéder à notre application web sur l'adresse : **demo.res.ch**.
+
+Pour ce faire, sur Windows, il faut modifier le fichier suivant : c:\windows\system32\drivers\etc\hosts (en mode admin)
+
+Puis rajouter la ligne suivante : 192.168.99.100 demo.res.ch
+
+
+
+
+
