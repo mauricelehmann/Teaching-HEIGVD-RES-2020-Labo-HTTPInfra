@@ -244,6 +244,20 @@ Pour ce faire, sur Windows, il faut modifier le fichier suivant : c:\windows\sys
 Puis rajouter la ligne suivante : 192.168.99.100 demo.res.ch
 
 
+## Autres commandes Docker utiles
+```sh
+//Connexion à "l'espace" docker-machine :
+docker-machine ssh
 
+//Se connecter au shell d'un container
+docker exec -it -i <nom du container> /bin/bash
+
+//Arrêter tous les containers
+docker kill $(docker ps)
+
+//Tuer les container "exited"
+docker rm -v $(docker ps -a -q -f status=exited)
+
+```
 
 
