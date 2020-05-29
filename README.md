@@ -206,6 +206,10 @@ RUN a2ensite 000-* 001-*
 
 ```
 
+***Attention ! Il est important que le fichier apache2-foreground soit en format UNIX (LF) et non en Windows (CRLF) !***
+
+(Il est possible de convertir le fichier depuis Notepad++)
+
 ## Build & Lancement des Docker Containers
 ### Builds
 Pour le build des trois images, il faut se mettre dans le dossier ou se trouve le fichier Dockerfile correspondant.
@@ -227,7 +231,7 @@ docker inspect apache_dynamic | grep -i ipad
 ```
 On peut finalement lancer le **reverse-proxy**
 ```sh
-docker run -e STATIC_APP=<adresse IP de apache_static>:80 -e DYNAMIC_APP=<adresse IP de apache_dynamic>:3333 -p 8080:80 --name reverse-proxy res/apache-rp
+docker run -e STATIC_APP=<adresse IP de apache_static>:80 -e DYNAMIC_APP=<adresse IP de apache_dynamic>:3333 -p 8080:80 --name reverse-proxy <nom de l'image du reverse proxy>
 ```
 Dans cette dernière commande, on fait plusieurs choses :
  - "-e" : Set les variables d'environnement de la VM
